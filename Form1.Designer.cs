@@ -3,7 +3,7 @@
 
     partial class Form1
     {
-        public const string ConnectionString = "DataSource=..\\..\\..\\..\\DatabasesSQLite\\chinook.db; Version = 3; New = True; Compress = True;";
+        public const string ConnectionString = "DataSource=..\\..\\..\\chinook.db; Version = 3; New = True; Compress = True;";
         /// <summary>
         ///  Required designer variable.
         /// </summary>
