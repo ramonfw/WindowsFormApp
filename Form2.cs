@@ -17,6 +17,7 @@ namespace WinFormsSQLite1
         SQLiteDataReader data_reader;
 
         String[] arrDatosEmployeeIni;
+        long[] arrReportsTo;
 
         public Form2()
         {
@@ -25,6 +26,8 @@ namespace WinFormsSQLite1
             data_reader = ReadDataEmployees(sqlite_conn,"EmployeeId", 1);
 
             arrDatosEmployeeIni = new String[15];
+            List<long> arrReportsTo = new List<long>();
+
             CargaDatosDeDataReader();
 
             CargaListadoReportsTo();
@@ -41,12 +44,16 @@ namespace WinFormsSQLite1
 
             sqlite_datareaderList = sqlite_cmd_list.ExecuteReader();
 
+            List<long> miLista = new List<long>();
+            miLista.Add(0);
+
             lstBReportsTo.Items.Add("No");
             while (sqlite_datareaderList.Read())
             {
                 lstBReportsTo.Items.Add(sqlite_datareaderList.GetString(2) + " " + sqlite_datareaderList.GetString(1));
+                miLista.Add(sqlite_datareaderList.GetInt64(0));
             }
-
+            arrReportsTo = miLista.ToArray();
         }
 
         private void CargaDatosDeDataReader()
@@ -245,9 +252,18 @@ namespace WinFormsSQLite1
             if (rbAccion3.Checked)
             {
                 caption = "Borrando Empleado";
-                if (DeleteEmployee(sqlite_conn, Int64.Parse(lbIdEmployee.Text)))
+
+                int resultado = DeleteEmployee(sqlite_conn, Int64.Parse(lbIdEmployee.Text));
+                if (resultado>0)
                 {
                     message = "Empleado borrado satisfactoriamente";
+
+                    data_reader = ReadDataEmployees(sqlite_conn, "EmployeeId", 1);
+                    CargaDatosDeDataReader();
+                }
+                else if (resultado < 0)
+                {
+                    message = "Error, el empleado no se puede borrar pues alguien reporta a el. Cambie  ese dato en los correspondientes empleados";
                 }
                 else
                 {
@@ -271,6 +287,16 @@ namespace WinFormsSQLite1
         {
             btnAccio.Text = "Eliminar";
 
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstBReportsTo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txReportsTo.Text = arrReportsTo[lstBReportsTo.SelectedIndex].ToString();
         }
     }
 }

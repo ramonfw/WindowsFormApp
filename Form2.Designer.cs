@@ -141,6 +141,7 @@
             this.txTotalEmployeers.Name = "txTotalEmployeers";
             this.txTotalEmployeers.Size = new System.Drawing.Size(66, 27);
             this.txTotalEmployeers.TabIndex = 6;
+            this.txTotalEmployeers.Visible = false;
             // 
             // label17
             // 
@@ -150,6 +151,7 @@
             this.label17.Size = new System.Drawing.Size(120, 20);
             this.label17.TabIndex = 5;
             this.label17.Text = "Total Empleados";
+            this.label17.Visible = false;
             // 
             // rbAccion2
             // 
@@ -233,6 +235,7 @@
             this.lstBReportsTo.Name = "lstBReportsTo";
             this.lstBReportsTo.Size = new System.Drawing.Size(235, 28);
             this.lstBReportsTo.TabIndex = 31;
+            this.lstBReportsTo.SelectedIndexChanged += new System.EventHandler(this.lstBReportsTo_SelectedIndexChanged);
             // 
             // txReportsTo
             // 
@@ -539,6 +542,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Form2";
             this.Text = "OPERACIONES [CRUD] SOBRE TABLA EMPLOYEES";
+            this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -645,30 +649,29 @@
                 sqlite_cmd.Parameters.AddWithValue(ArrCampos[i], pArrDatosEmployee[i]);
             }
 
-            sqlite_cmd.ExecuteNonQuery();
+            int resultado = sqlite_cmd.ExecuteNonQuery();
 
-            return true;
+            return resultado > 0; ;
         }
 
-
-        static void InsertDataEmployees(SQLiteConnection conn)
+        static int DeleteEmployee(SQLiteConnection conn, Int64 pEmployeeId)
         {
-            SQLiteCommand sqlite_cmd;
-            sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT INTO employees (Col1, Col2) VALUES('Test Text ', 1); ";
-            sqlite_cmd.ExecuteNonQuery();
-        }
 
-        static bool DeleteEmployee(SQLiteConnection conn, Int64 pEmployeeId)
-        {
-            SQLiteCommand sqlite_cmd;
-            sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM employees where EmployeeId = ?";
+            SQLiteDataReader data_reader_to_delete = ReadDataEmployees(conn, "ReportsTo", pEmployeeId);
+            if (data_reader_to_delete.HasRows)
+                return -1;
+            else
+            {
+                SQLiteCommand sqlite_cmd;
+                sqlite_cmd = conn.CreateCommand();
+                sqlite_cmd.CommandText = "DELETE FROM employees where EmployeeId = ?";
 
-            sqlite_cmd.Parameters.AddWithValue("EmployeeId", pEmployeeId);
-            sqlite_cmd.ExecuteNonQuery();
+                sqlite_cmd.Parameters.AddWithValue("EmployeeId", pEmployeeId);
+                int resultado = sqlite_cmd.ExecuteNonQuery();
 
-            return true;
+                return resultado;
+            }
+
         }
 
         static SQLiteDataReader ReadDataEmployees(SQLiteConnection conn, String FieldName, Int64 FieldValue)
